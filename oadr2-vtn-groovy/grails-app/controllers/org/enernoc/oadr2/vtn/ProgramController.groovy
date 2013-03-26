@@ -1,7 +1,11 @@
 package org.enernoc.oadr2.vtn
 
 import org.enernoc.oadr2.vtn.Program
-
+/**
+ * controller for programs
+ * @author yangxiang
+ *
+ */
 class ProgramController {
 	/**
 	 * Base method called to access the default page for the Programs controller
@@ -20,19 +24,6 @@ class ProgramController {
 	 */
 
 	def programs() {
-		/**
-		 * Comparator to sort the Program table by name
-		 *
-		 * @author Jeff LaJoie
-		 *
-		 class ProgramFormComparator implements Comparator<Program>{
-		 public int compare(Program programOne, Program programTwo){
-		 return programOne.getProgramName().compareTo(programTwo.getProgramName());
-		 }
-		 }
-		 List<Program> programs = JPA.em().createQuery("FROM Program").getResultList();
-		 Collections.sort(programs, new ProgramFormComparator());
-		 return ok(views.html.programs.render(programs));*/
 		def results = Program.listOrderByProgramName(order:"desc")
 		[programList: results]
 	}
@@ -48,24 +39,6 @@ class ProgramController {
 	def blankProgram() {
 		[]
 	}
-
-	/**
-	 * Persists the form from the newProgram page to the Program table
-	 *
-	 * @return a redirect to the default display page with the Program added
-	 @Transactional
-	 public static Result newProgram(){
-	 Form<Program> filledForm = form(Program.class).bindFromRequest();
-	 if(filledForm.hasErrors()){
-	 return badRequest();
-	 }
-	 else{
-	 Program newProgram = filledForm.get();
-	 JPA.em().persist(newProgram);
-	 flash("success", "Program as been created");
-	 }
-	 return redirect(routes.Programs.programs());
-	 }*/
 
 	def newProgram() {
 		def program = new Program(params)
@@ -87,13 +60,7 @@ class ProgramController {
 	 * @param id - the database ID of the Program to be deleted
 	 * @return a redirect to the default display page without the deleted Program
 	 */
-	/*@Transactional
-	 public static Result deleteProgram(Long id){
-	 Program program = JPA.em().find(Program.class, id);
-	 flash("success", "Program has been deleted");
-	 JPA.em().remove(program);
-	 return redirect(routes.Programs.programs());
-	 }*/
+
 
 	def deleteProgram() {
 		def program = Program.get(params.id)

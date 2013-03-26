@@ -18,25 +18,17 @@ import org.enernoc.oadr2.vtn.Program;
 
 import org.enernoc.open.oadr2.model.EiEvent;
 
-//import play.db.jpa.JPA;
-//import play.db.jpa.Transactional;
-//import play.mvc.Controller;
-//import play.mvc.Result;
-//import service.XmppService;
-//import service.oadr.EiEventService;
 
-//import com.google.inject.Inject;
 
 /**
  * Controller to handle the XMPP and HTTP services as well as the VENStatuses
  * 
- * @author Jeff LaJoie
+ * @author Yang Xiang
  *
  */
 public class VenStatusController {
     	
-	//@Inject static EiEventService eiEventService;
-	//@Inject static XmppService xmppService;
+
 	
     /**
      * Base method called to access the default page for the VENStatuses controller
@@ -62,54 +54,7 @@ public class VenStatusController {
 		[venStatusList: venStatuses, eventList: eventList, currentEventID: params.eventID]
 	}
 	
-	/**
-	 * Function called to have the display table rendered via AJAX calls
-	 * 
-	 * @param program - The program specific to the Events to be displayed
-	 * @return the rendered page for the VENStatus based on the program
-	 
-	//@SuppressWarnings("unchecked")
-   //@Transactional
-	public static Result renderAjaxTable(String program){
-	    def listStatusObjects;
-	    if(program != null){
-	        listStatusObjects = JPA.em().createQuery("SELECT status " +
-	                "FROM VENStatus status WHERE status.eventID = :event")
-	                .setParameter("event", program)
-	                .getResultList();
-	    }
-        else{
-           // listStatusObjects = JPA.em().createQuery("FROM VENStatus").getResultList();
-		 listStatusObjects = VenStatus.listOrderByTime(order:"desc")
-			}	    
-	    /**
-	     * Comparator to sort the list of VENStatuses based on last response time
-	     * 
-	     * @author Jeff LaJoie
-	     *
-	     
-		
-		Collections.sort(listStatusObjects, new StatusObjectComparator());		
-	    return ok(views.html.venStatusTable.render(listStatusObjects, program));
-	}
-	
-	def renderAjaxTable(String program){
-		def listStatusObjects;
-		if(program != null){
-			listStatusObjects = VenStatus.findAll("from VenStatus as v where v.author=?", [program])
-		}
-		else{
-			listStatusObjects = VenStatus.listOrderByTime(order:"desc")
-		}
-		/**
-		 * Comparator to sort the list of VENStatuses based on last response time
-		 *
-		 * @author Jeff LaJoie
-		 *
-		 *
-		listStatusObjects.sort
-		render(view: "venStatusTable", model: [listStatus: listStatusObjects, program: program])
-	}*/
+
 	
 	/**
 	 * Deletes a VENStatus based on the active program and the ID of the VENStatus

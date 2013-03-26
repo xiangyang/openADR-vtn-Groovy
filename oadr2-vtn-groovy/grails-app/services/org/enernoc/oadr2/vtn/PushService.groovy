@@ -47,6 +47,7 @@ public class PushService{
     //@Transactional
     public void pushNewEvent(EiEvent e, List<Ven> vens) throws JAXBException{       
         for(Ven v : vens){
+			print("pushing all day long")
             OadrDistributeEvent distribute = new OadrDistributeEvent()
             .withOadrEvents(new OadrEvent().withEiEvent(e));
             

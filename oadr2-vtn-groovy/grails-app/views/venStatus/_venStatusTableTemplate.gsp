@@ -11,6 +11,7 @@
 		</tr>
 	<tfoot></tfoot>
 	<tbody>
+	
 		<g:each in="${venStatusList}" var="venStatus">
 			<tr>
 				<td>${venStatus.venID}</td>

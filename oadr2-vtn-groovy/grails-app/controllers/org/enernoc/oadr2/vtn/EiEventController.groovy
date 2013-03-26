@@ -12,7 +12,7 @@ import org.apache.commons.logging.LogFactory
 
 /**
  * Controller to respond for OADR requests with an XML payload
- * @author jlajoie
+ * @author Yang Xiang
  *
  */
 public class EiEventController{

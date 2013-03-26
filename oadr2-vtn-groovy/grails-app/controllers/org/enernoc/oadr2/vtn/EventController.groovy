@@ -46,31 +46,19 @@ import org.enernoc.open.oadr2.model.SignalTypeEnumeratedType;
 import org.enernoc.open.oadr2.model.Uid;
 import org.apache.commons.logging.LogFactory
 
-/*
- import play.data.Form;
- import play.data.validation.ValidationError;
- import play.db.jpa.JPA;
- import play.db.jpa.Transactional;
- import play.mvc.Controller;
- import play.mvc.Result;
- import service.PushService;
- import service.XmppService;
+
  /**
  * Events controller to manage all Event objects created
  * and the display page for those objects
  *
- * @author Jeff LaJoie
+ * @author Yang Xiang
  */
 class EventController{
 	private static final log = LogFactory.getLog(this)
 	def messageSource
 	def pushService
 	def xmppService
-	//  @Inject static XmppService xmppService;
-	//  @Inject static PushService pushService;
-	//static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("Events");
 	static ObjectFactory objectFactory = new ObjectFactory();
-	// static EntityManager entityManager = entityManagerFactory.createEntityManager();
 	static DatatypeFactory datatypeFactory;
 	static{
 		try {

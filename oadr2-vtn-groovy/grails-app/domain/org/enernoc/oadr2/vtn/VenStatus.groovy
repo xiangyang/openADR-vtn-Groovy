@@ -6,7 +6,7 @@ package org.enernoc.oadr2.vtn
  * for Play's automatic binding of form fields to Objects
  * This object is used to track communications with VENs
  *
- * @author Jeff LaJoie
+ * @author Yang Xiang
  *
  */
 

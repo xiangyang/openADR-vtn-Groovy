@@ -1,10 +1,11 @@
 package org.enernoc.oadr2.vtn;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+
+import java.io.ByteArrayInputStream;
+
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller
 import javax.xml.datatype.DatatypeFactory;
 
 import org.enernoc.open.oadr2.xmpp.JAXBManager;
@@ -37,50 +38,59 @@ import org.enernoc.open.oadr2.xmpp.OADR2PacketExtension;
  */
 public class XmppService {
 	private static final log = LogFactory.getLog(this)
-	
-		private static volatile XmppService instance = null;
-			
-		static final String OADR2_XMLNS = "http://openadr.org/oadr-2.0a/2012/07";
-		
-		private ConnectionConfiguration connConfig = new ConnectionConfiguration("Yangs-MacBook-Pro.local", 5222);
-		
-		private static XMPPConnection vtnConnection;
-		
-		private ChatManager chatManager;
-		
-		private MessageListener messageListener;
-		
-		def PushService pushService;// = new PushService();
-		static EiEventService eiEventService = EiEventService.getInstance();
-		
-		//TODO add these to a config file like spring config or something, hardcoded for now
-		private String vtnUsername = "yangxiang";
-		private String vtnPassword = "password";
-		private String JID = "bob@yangs-macbook-pro.local/Yangs-MacBook-Pro";
-		
-		private Marshaller marshaller;
-		DatatypeFactory xmlDataTypeFac;
-		
-		
-		/**
-		 * Constructor to establish the XMPP connection
-		 *
-		 * @throws XMPPException
-		 * @throws InstantiationException
-		 * @throws IllegalAccessException
-		 * @throws JAXBException
-		 */
-		public XmppService() throws XMPPException, InstantiationException, IllegalAccessException, JAXBException{
-			//Add for debugging
-			//Connection.DEBUG_ENABLED = true;
-			if(vtnConnection == null){
-				vtnConnection = connect(vtnUsername, vtnPassword, "vtn");
-			}
-			
-			JAXBManager jaxb = new JAXBManager();
-			marshaller = jaxb.createMarshaller();
+
+	static JAXBManager jaxbManager;
+	static{
+		try {
+			jaxbManager = new JAXBManager("org.enernoc.open.oadr2.model");
+		} catch (JAXBException e) {
+			log.error("Could not initialize JAXBManager in EiEvents", e);
 		}
-	
+	}
+
+	private static volatile XmppService instance = null;
+
+	static final String OADR2_XMLNS = "http://openadr.org/oadr-2.0a/2012/07";
+
+	private ConnectionConfiguration connConfig = new ConnectionConfiguration("Yangs-MacBook-Pro.local", 5222);
+
+	private static XMPPConnection vtnConnection;
+
+	private ChatManager chatManager;
+
+	private MessageListener messageListener;
+
+	def PushService pushService;// = new PushService();
+	static EiEventService eiEventService = EiEventService.getInstance();
+
+	//TODO add these to a config file like spring config or something, hardcoded for now
+	private String vtnUsername = "yangxiang";
+	private String vtnPassword = "password";
+	private String JID = "bob@yangs-macbook-pro.local/Yangs-MacBook-Pro";
+
+	private Marshaller marshaller;
+	DatatypeFactory xmlDataTypeFac;
+
+
+	/**
+	 * Constructor to establish the XMPP connection
+	 *
+	 * @throws XMPPException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws JAXBException
+	 */
+	public XmppService() throws XMPPException, InstantiationException, IllegalAccessException, JAXBException{
+		//Add for debugging
+		//Connection.DEBUG_ENABLED = true;
+		if(vtnConnection == null){
+			vtnConnection = connect(vtnUsername, vtnPassword, "vtn");
+		}
+
+		JAXBManager jaxb = new JAXBManager();
+		marshaller = jaxb.createMarshaller();
+	}
+
 	/**
 	 * Singleton getter for when Guice injection is not possible
 	 *
@@ -108,8 +118,8 @@ public class XmppService {
 		}
 		return instance;
 	}
-	
-   
+
+
 	/**
 	 * Adds a packet listener to the connection that handles all incoming packets
 	 *
@@ -118,25 +128,26 @@ public class XmppService {
 	//@Transactional
 	public PacketListener oadrPacketListener(){
 		return new PacketListener(){
-	  //      @Override
-		//    @Transactional
+			//      @Override
+			//    @Transactional
 			public void processPacket(Packet packet){
 				log.info("Listening to incoming packets1");
 				def extension = packet.getExtension(OADR2_XMLNS) //as OADR2PacketExtension
-				if (extension instanceof PacketExtension) {
-				log.info("Listening to incoming packets2");
-				}
-				Object payload = eiEventService.handleOadrPayload(extension.getPayload());//I don't event understand how this works
+				Unmarshaller unmarshaller = jaxbManager.getContext().createUnmarshaller();
+				print(extension.toXML())
+				Object payload = unmarshaller.unmarshal(new ByteArrayInputStream(extension.toXML().getBytes()));
+				Object eiResponse = eiEventService.handleOadrPayload(payload);
+				//Object payload = eiEventService.handleOadrPayload(extension.getPayload());//I don't even understand how this works
 				log.info("Listening to incoming packets3");
-				
-				if(payload != null){
+
+				if(eiResponse != null){
 					log.info("payload is not null");
-					sendObjectToJID(payload, packet.getFrom());
+					sendObjectToJID(eiResponse, packet.getFrom());
 				}
 			}
 		};
 	}
-	
+
 	/**
 	 * A packet filter to only accept packets with the OADR2_XMLNS
 	 *
@@ -148,12 +159,12 @@ public class XmppService {
 			@Override
 			public boolean accept(Packet packet){
 				log.info("Filtering...");
-				
+
 				return packet.getExtension(OADR2_XMLNS) != null;
 			}
 		};
 	}
-	
+
 	/**
 	 * Establish a connection for the XMPP server
 	 *
@@ -167,28 +178,28 @@ public class XmppService {
 	 */
 	public XMPPConnection connect(String username, String password, String resource) throws InstantiationException, IllegalAccessException, XMPPException{
 		System.out.println("xmpp Connection attempted");
-	   XMPPConnection connection = new XMPPConnection(connConfig);
-	   if(!connection.isConnected()){
-		   connection.connect();
-		   if(connection.getUser() == null && !connection.isAuthenticated()){
-			   connection.login(username, password, resource);
-			   connection.addPacketListener(oadrPacketListener(), oadrPacketFilter());
-			   
-		   }
-	   }
-	   return connection;
+		XMPPConnection connection = new XMPPConnection(connConfig);
+		if(!connection.isConnected()){
+			connection.connect();
+			if(connection.getUser() == null && !connection.isAuthenticated()){
+				connection.login(username, password, resource);
+				connection.addPacketListener(oadrPacketListener(), oadrPacketFilter());
+
+			}
+		}
+		return connection;
 	}
-	
+
 	class MyMessageListener implements MessageListener {
 		@Override
 		public void processMessage(Chat chat, Message message) {
 			System.out.println("I know you are but what am I")
 		}
 	}
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * Sends an object to a JID
 	 *
@@ -203,7 +214,7 @@ public class XmppService {
 		iq.setType(IQ.Type.SET);
 		vtnConnection.sendPacket(iq);
 	}
-	
+
 	/**
 	 * Send an object to a jid with the specified packetId
 	 *
@@ -220,5 +231,5 @@ public class XmppService {
 		iq.setType(IQ.Type.RESULT);
 		vtnConnection.sendPacket(iq);
 	}
-	
+
 }

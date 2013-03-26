@@ -35,7 +35,7 @@ import org.enernoc.open.oadr2.model.Properties;
  * A wrapper class to use the Play specific binding to cast 
  * a form to an EiEvent as well as manage the event itself
  * 
- * @author Jeff LaJoie
+ * @author Yang Xiang
  *
  */
 class Event{
@@ -449,64 +449,7 @@ class Event{
 		return null;
 	}
 
-	/**
-	 * Returns a boolean if the start DateTime is before the end DateTime
-	 * 
-	 * @param startDate - the start date field
-	 * @param endDate - the end date field
-	 * @param startTime - the start time field
-	 * @param endTime - the end time form field
-	 * @return true if the starting DateTime occurs before or at the same time as the ending DateTime
-	 *
-	 public boolean startIsBeforeEnd(String startDate, String startTime, String endDate, String endTime){	    
-	 DateTime dtStart = createDateTime(startDate, startTime);
-	 DateTime dtEnd = createDateTime(endDate, endTime);
-	 return dtStart.getValue().toGregorianCalendar().getTimeInMillis() <= dtEnd.getValue().toGregorianCalendar().getTimeInMillis();	
-	 }*///NO Longer needed
-
-	/**
-	 * Checks to see if the event being created conflicts with the active period of another event
-	 * 
-	 * @return true if the event does not conflict, false otherwise
-	 *
-	 //@SuppressWarnings("unchecked")
-	 // @Transactional
-	 public boolean isConflicting(){
-	 Map<String, EiEvent> eventMap = new HashMap<String, EiEvent>();
-	 /*
-	 * "Quasi" is more appropriate than "pseudo" as the former represents an entity somewhat 
-	 * by possessing certain qualities, in this instance, the qualities of an EiEvent but not ALL of them exist.
-	 * The latter is unacceptable as the formal definition is of a falsehood, but the object in question is not a 
-	 * false/fake EiEvent, just one that is incomplete. The more you know.
-	 *
-	 EiEvent quasiEvent = getQuasiEvent();
-	 eventMap.put(quasiEvent.getEventDescriptor().getEiMarketContext().getMarketContext().getValue(), quasiEvent);
-	 List<EiEvent> eiEvents = entityManager.createQuery("FROM EiEvent").getResultList();
-	 for(EiEvent event : eiEvents){
-	 String marketContext = event.getEventDescriptor().getEiMarketContext().getMarketContext().getValue();
-	 XMLGregorianCalendar eventOneStartDt = (XMLGregorianCalendar)event.getEiActivePeriod().getProperties().getDtstart().getDateTime().getValue().clone();
-	 XMLGregorianCalendar eventOneEndDt = (XMLGregorianCalendar)event.getEiActivePeriod().getProperties().getDtstart().getDateTime().getValue().clone();
-	 if(eventMap.containsKey(marketContext)){
-	 EiEvent mappedEvent = eventMap.get(marketContext);
-	 eventOneEndDt.add(getDuration(event));
-	 XMLGregorianCalendar eventTwoStartDt = (XMLGregorianCalendar)eventMap.get(marketContext).getEiActivePeriod().getProperties()
-	 .getDtstart().getDateTime().getValue().clone();
-	 XMLGregorianCalendar eventTwoEndDt = (XMLGregorianCalendar)eventMap.get(marketContext).getEiActivePeriod().getProperties()
-	 .getDtstart().getDateTime().getValue().clone();
-	 eventTwoEndDt.add(getDuration(mappedEvent));
-	 if((eventOneStartDt.compare(eventTwoStartDt) >= 0 && eventOneStartDt.compare(eventTwoEndDt) == -1)
-	 || (eventOneEndDt.compare(eventTwoStartDt) >= 0 && eventOneStartDt.compare(eventTwoEndDt) == -1)){
-	 return true;
-	 }
-	 }
-	 else{
-	 eventMap.put(marketContext, event);
-	 }
-	 }
-	 return false;
-	 }*/
-
-	/*compares if two events are conflicting by using events as oppose to eiEvents
+	/**compares if two events are conflicting by using events as oppose to eiEvents
 	 * modified to fit a groovier framework
 	 * @author Yang Xiang
 	 * 
@@ -553,26 +496,6 @@ class Event{
 		return df.newDuration(event.getEiActivePeriod().getProperties().getDuration().getDuration().getValue());
 	}
 
-	/**
-	 * Creates an EiEvent with only mandatory fields filled in
-	 * 
-	 * @return an incomplete EiEvent which is still fully acceptable for conflict comparison
-	 */
-	public EiEvent getQuasiEvent(){
-		return new EiEvent()
-		.withEventDescriptor(new EventDescriptor()
-		.withEventID(eventID)
-		.withEiMarketContext(new EiMarketContext()
-		.withMarketContext(new MarketContext()
-		.withValue(entityManager.find(Program.class, Long.parseLong(marketContext)).getProgramName()))))
-		.withEiActivePeriod(new EiActivePeriod()
-		.withProperties(new Properties()
-		.withDtstart(new Dtstart()
-		.withDateTime(createDateTime(this.startDate, this.startTime)))
-		.withDuration(new DurationPropType()
-		.withDuration(new DurationValue()
-		.withValue(createXCalString(getMinutesDuration()))))));
-	}
 
 
 }

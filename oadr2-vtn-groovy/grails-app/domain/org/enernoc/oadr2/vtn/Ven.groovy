@@ -1,5 +1,8 @@
 package org.enernoc.oadr2.vtn
-
+/**
+ * Virtual End Nodes to be persisted
+ * @author Yang Xiang
+ */
 class Ven {
 
 	 String venID;

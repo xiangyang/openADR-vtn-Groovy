@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory
 /**
  * EiEventService handles all persistence and object creation of payloads
  * 
- * @author Jeff LaJoie
+ * @author Yang Xiang
  *
  */
 public class EiEventService{
@@ -42,9 +42,6 @@ public class EiEventService{
 	static transactional = true
 	private static final log = LogFactory.getLog(this)
 	
-	//static EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("Events");
-	//static EntityManager entityManager = entityManagerFactory.createEntityManager();
-
     private volatile static EiEventService instance = null;
     
     public EiEventService(){
@@ -93,36 +90,7 @@ public class EiEventService{
         }
     }    
     
-    /**
-     * Take a OadrCreatedEvent and persists the information, as well as creating an OadrResponse
-     * 
-     * @param oadrCreatedEvent
-     * @return an OadrResponse containing information to respond to an OadrCreatedEvent
-     *
-     * public static OadrResponse handleOadrCreated(OadrCreatedEvent oadrCreatedEvent){
-        String responseCode = verifyOadrCreated(oadrCreatedEvent);
-        if(oadrCreatedEvent.getEiCreatedEvent().getEiResponse().getResponseCode().getValue().charAt(0) == '2'){
-            persistFromCreatedEvent(oadrCreatedEvent);
-            createNewEm();
-            entityManager.persist(oadrCreatedEvent);
-            entityManager.getTransaction().commit();
-            
-            return new OadrResponse()
-                .withEiResponse(new EiResponse()
-                    .withRequestID("TH_REQUEST_ID")
-                    .withResponseCode(new ResponseCode(responseCode))
-                    .withResponseDescription("Optional description!"));
-        }
-        else{
-            return new OadrResponse()
-                .withEiResponse(new EiResponse()
-                        .withRequestID("TH_REQUEST_ID")
-                        .withResponseCode(new ResponseCode("200"))
-                        .withResponseDescription("Incoming event contained errors"));
-        }
-    }
-     *
-     */
+
     //@Transactional
     public static OadrResponse handleOadrCreated(OadrCreatedEvent oadrCreatedEvent){
 		log.error("now inside handleOadrCreated")	
